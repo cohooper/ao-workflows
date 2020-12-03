@@ -1,0 +1,460 @@
+{
+  "workflow": {
+    "unique_name": "definition_workflow_01KLI37CLYCDB2iE8Glvllm7W3kPHr08mIs",
+    "name": "Cohooper_Master",
+    "title": "Cohooper_Master",
+    "type": "generic.workflow",
+    "base_type": "workflow",
+    "variables": [
+      {
+        "schema_id": "datatype.string",
+        "properties": {
+          "value": "",
+          "scope": "local",
+          "name": "results",
+          "type": "datatype.string",
+          "is_required": false,
+          "is_invisible": false
+        },
+        "unique_name": "variable_workflow_01KLQW4VIL7G11nkmvtkC7PLYYWk40Y47Tn",
+        "object_type": "variable_workflow"
+      },
+      {
+        "schema_id": "datatype.string",
+        "properties": {
+          "value": "",
+          "scope": "input",
+          "name": "name",
+          "type": "datatype.string",
+          "is_required": true,
+          "is_invisible": false
+        },
+        "unique_name": "variable_workflow_01KLIBJI2EVFA0B78JGfL9zPsqNMN6iRrUh",
+        "object_type": "variable_workflow"
+      }
+    ],
+    "properties": {
+      "atomic": {
+        "is_atomic": false
+      },
+      "delete_workflow_instance": false,
+      "display_name": "Cohooper_Master",
+      "runtime_user": {
+        "override_target_runtime_user": false,
+        "specify_on_workflow_start": false,
+        "target_default": true
+      },
+      "target": {
+        "target_type": "web-service.endpoint",
+        "target_id": "definition_target_01KLGU3W3ZPRE7fTmgEtyBM8X8CNFLRGLCy",
+        "execute_on_workflow_target": true
+      }
+    },
+    "object_type": "definition_workflow",
+    "actions": [
+      {
+        "unique_name": "definition_activity_01KLRO93TN0C154u6P1Hv94ntCFTBVKllPN",
+        "name": "Cohooper basic WF",
+        "title": "Cohooper basic WF",
+        "type": "workflow.atomic_workflow",
+        "base_type": "subworkflow",
+        "properties": {
+          "display_name": "Cohooper basic WF",
+          "input": {
+            "variable_workflow_01KLH5STVYD1C40O4OOlcaYMHD4f6CoY0z9": "users"
+          },
+          "runtime_user": {
+            "target_default": true
+          },
+          "target": {
+            "execute_on_this_target": true,
+            "target_id": "definition_target_01KLGU3W3ZPRE7fTmgEtyBM8X8CNFLRGLCy",
+            "target_type": "web-service.endpoint"
+          },
+          "workflow_id": "definition_workflow_01KLH51WNYO402Mlon7WYhPRh1KlWnQJec7"
+        },
+        "object_type": "definition_activity"
+      },
+      {
+        "unique_name": "definition_activity_01KLRTJWCM7G319iwhHqAtRNeoOBQkGaZDB",
+        "name": "JSONPath Query",
+        "title": "JSONPath Query",
+        "type": "corejava.jsonpathquery",
+        "base_type": "activity",
+        "properties": {
+          "action_timeout": 180,
+          "continue_on_failure": true,
+          "display_name": "JSONPath Query",
+          "input_json": "$activity.definition_activity_01KLRO93TN0C154u6P1Hv94ntCFTBVKllPN.output.variable_workflow_01KLHNERKJ41L21vEyUIbfFM2QgXEj5ZxfV$",
+          "jsonpath_queries": [
+            {
+              "jsonpath_query": "$.[?(@.username==\"$workflow.definition_workflow_01KLI37CLYCDB2iE8Glvllm7W3kPHr08mIs.input.variable_workflow_01KLIBJI2EVFA0B78JGfL9zPsqNMN6iRrUh$\")]",
+              "jsonpath_query_name": "name",
+              "jsonpath_query_type": "string"
+            }
+          ],
+          "skip_execution": false
+        },
+        "object_type": "definition_activity"
+      },
+      {
+        "unique_name": "definition_activity_01KLRYPI588LA4GRsYl57QsFRaf3FP0ZBMp",
+        "name": "Execute Python Script",
+        "title": "Execute Python Script",
+        "type": "python3.script",
+        "base_type": "activity",
+        "properties": {
+          "action_timeout": 180,
+          "continue_on_failure": false,
+          "display_name": "Execute Python Script",
+          "script": "import json\nimport sys\n\ntry:\n    block = json.loads(sys.argv[1])\n    if block['name']:\n        output = block['name']\n    else:\n        output = \"No Name Found.\"\nexcept:\n    output = \"No Name Found\"",
+          "script_arguments": [
+            "$activity.definition_activity_01KLRTJWCM7G319iwhHqAtRNeoOBQkGaZDB.output.jsonpath_queries.name$"
+          ],
+          "script_queries": [
+            {
+              "script_query": "output",
+              "script_query_name": "name_of_person",
+              "script_query_type": "string"
+            }
+          ],
+          "skip_execution": false
+        },
+        "object_type": "definition_activity"
+      },
+      {
+        "unique_name": "definition_activity_01KLQF4XYD3271o2EnJNXaBVB4kj8sezH50",
+        "name": "Condition Block",
+        "title": "IF FOUND NAME",
+        "type": "logic.if_else",
+        "base_type": "activity",
+        "properties": {
+          "continue_on_failure": false,
+          "display_name": "IF FOUND NAME",
+          "skip_execution": false
+        },
+        "object_type": "definition_activity",
+        "blocks": [
+          {
+            "unique_name": "definition_activity_01KLQF512AQI323wt2rAlm0X7dBt1cHarIt",
+            "name": "Condition Branch",
+            "title": "THEN",
+            "type": "logic.condition_block",
+            "base_type": "activity",
+            "properties": {
+              "condition": {
+                "left_operand": "$activity.definition_activity_01KLRTJWCM7G319iwhHqAtRNeoOBQkGaZDB.output.succeeded$",
+                "operator": "eq",
+                "right_operand": true
+              },
+              "continue_on_failure": false,
+              "display_name": "THEN",
+              "skip_execution": false
+            },
+            "object_type": "definition_activity",
+            "actions": [
+              {
+                "unique_name": "definition_activity_01KLQWDBV181B5yl49u1HYiK0PEqDuYRjdy",
+                "name": "Set Variables",
+                "title": "Set Variables",
+                "type": "core.set_multiple_variables",
+                "base_type": "activity",
+                "properties": {
+                  "continue_on_failure": false,
+                  "display_name": "Set Variables",
+                  "skip_execution": false,
+                  "variables_to_update": [
+                    {
+                      "variable_to_update": "$workflow.definition_workflow_01KLI37CLYCDB2iE8Glvllm7W3kPHr08mIs.local.variable_workflow_01KLQW4VIL7G11nkmvtkC7PLYYWk40Y47Tn$",
+                      "variable_value_new": "We found $activity.definition_activity_01KLRYPI588LA4GRsYl57QsFRaf3FP0ZBMp.output.script_queries.name_of_person$ by their username $workflow.definition_workflow_01KLI37CLYCDB2iE8Glvllm7W3kPHr08mIs.input.variable_workflow_01KLIBJI2EVFA0B78JGfL9zPsqNMN6iRrUh$"
+                    }
+                  ]
+                },
+                "object_type": "definition_activity"
+              },
+              {
+                "unique_name": "definition_activity_01KLTCFTRTFNG0YIbwxl4S729KXYj5DGbcM",
+                "name": "Write File",
+                "title": "Write File",
+                "type": "terminal.write_file",
+                "base_type": "activity",
+                "properties": {
+                  "action_timeout": 180,
+                  "content": "$workflow.definition_workflow_01KLI37CLYCDB2iE8Glvllm7W3kPHr08mIs.local.variable_workflow_01KLQW4VIL7G11nkmvtkC7PLYYWk40Y47Tn$",
+                  "continue_on_failure": false,
+                  "display_name": "Write File",
+                  "encoding": "utf-8",
+                  "file_name": "cohooper-basic-workflow-results.txt",
+                  "options": "append",
+                  "runtime_user": {
+                    "override_target_runtime_user": false,
+                    "target_default": true
+                  },
+                  "skip_execution": false,
+                  "target": {
+                    "override_workflow_target": true,
+                    "target_id": "definition_target_01KLTIKJGRW4V6O6TlH0hyOv4rAsrh6Hat5"
+                  }
+                },
+                "object_type": "definition_activity"
+              },
+              {
+                "unique_name": "definition_activity_01KLTWW1LQQI44jSXlefonPKmHRbOJcpcWX",
+                "name": "Send Email",
+                "title": "Send Email",
+                "type": "email.smtp_send_email",
+                "base_type": "activity",
+                "properties": {
+                  "action_timeout": 180,
+                  "body": "THIS THINGS ACTUALLY WORKED OMG!!!\nMY RESULT:\n$workflow.definition_workflow_01KLI37CLYCDB2iE8Glvllm7W3kPHr08mIs.local.variable_workflow_01KLQW4VIL7G11nkmvtkC7PLYYWk40Y47Tn$",
+                  "continue_if_one_address_valid": false,
+                  "continue_on_failure": false,
+                  "display_name": "Send Email",
+                  "from": "aobootcamp@gmail.com",
+                  "runtime_user": {
+                    "override_target_runtime_user": true,
+                    "runtime_user_id": "definition_runtime_user_01KLGWGAQ985M3AVcKwO23ql8RqQeE83tBl"
+                  },
+                  "skip_execution": false,
+                  "subject": "Results from Lab01 SSO BOOTCAMP",
+                  "target": {
+                    "override_workflow_target": true,
+                    "target_id": "definition_target_01KLGWTB8VLAO6K4N0LMOtHRoHG64pip3tm"
+                  },
+                  "to": "cohooper+apjclab@cisco.com"
+                },
+                "object_type": "definition_activity"
+              }
+            ]
+          },
+          {
+            "unique_name": "definition_activity_01KLQF51WSZEA5xDhbXzSt1idQWVPunpXmn",
+            "name": "Condition Branch",
+            "title": "ELSE",
+            "type": "logic.condition_block",
+            "base_type": "activity",
+            "properties": {
+              "condition": {
+                "left_operand": "$workflow.definition_workflow_01KLI37CLYCDB2iE8Glvllm7W3kPHr08mIs.local.variable_workflow_01KLQW4VIL7G11nkmvtkC7PLYYWk40Y47Tn$",
+                "operator": "eq",
+                "right_operand": "false"
+              },
+              "continue_on_failure": false,
+              "display_name": "ELSE",
+              "skip_execution": false
+            },
+            "object_type": "definition_activity",
+            "actions": [
+              {
+                "unique_name": "definition_activity_01KLTVWWRUBNZ20G7QM5QO8KSRX4HDsWovj",
+                "name": "Set Variables",
+                "title": "Set Variables",
+                "type": "core.set_multiple_variables",
+                "base_type": "activity",
+                "properties": {
+                  "continue_on_failure": false,
+                  "display_name": "Set Variables",
+                  "skip_execution": false,
+                  "variables_to_update": [
+                    {
+                      "variable_to_update": "$workflow.definition_workflow_01KLI37CLYCDB2iE8Glvllm7W3kPHr08mIs.local.variable_workflow_01KLQW4VIL7G11nkmvtkC7PLYYWk40Y47Tn$",
+                      "variable_value_new": "We found $activity.definition_activity_01KLRYPI588LA4GRsYl57QsFRaf3FP0ZBMp.output.script_queries.name_of_person$ by their username $workflow.definition_workflow_01KLI37CLYCDB2iE8Glvllm7W3kPHr08mIs.input.variable_workflow_01KLIBJI2EVFA0B78JGfL9zPsqNMN6iRrUh$"
+                    }
+                  ]
+                },
+                "object_type": "definition_activity"
+              },
+              {
+                "unique_name": "definition_activity_01KLTV6KTRUSA0ZlPmZQhYcDqSFV69HqWyu",
+                "name": "Write File",
+                "title": "Write File",
+                "type": "terminal.write_file",
+                "base_type": "activity",
+                "properties": {
+                  "action_timeout": 180,
+                  "content": "$workflow.definition_workflow_01KLI37CLYCDB2iE8Glvllm7W3kPHr08mIs.local.variable_workflow_01KLQW4VIL7G11nkmvtkC7PLYYWk40Y47Tn$",
+                  "continue_on_failure": false,
+                  "display_name": "Write File",
+                  "encoding": "utf-8",
+                  "file_name": "cohooper-basic-workflow-results.txt",
+                  "options": "append",
+                  "runtime_user": {
+                    "override_target_runtime_user": false,
+                    "target_default": true
+                  },
+                  "skip_execution": false,
+                  "target": {
+                    "override_workflow_target": true,
+                    "target_id": "definition_target_01KLTIKJGRW4V6O6TlH0hyOv4rAsrh6Hat5"
+                  }
+                },
+                "object_type": "definition_activity"
+              },
+              {
+                "unique_name": "definition_activity_01KLU2KZBSKJA1jbJ6FkQKPX9fFt6hfbwgA",
+                "name": "Send Email",
+                "title": "Send Email",
+                "type": "email.smtp_send_email",
+                "base_type": "activity",
+                "properties": {
+                  "action_timeout": 180,
+                  "body": "THIS THINGS ACTUALLY WORKED OMG!!!\nMY RESULT:\n$workflow.definition_workflow_01KLI37CLYCDB2iE8Glvllm7W3kPHr08mIs.local.variable_workflow_01KLQW4VIL7G11nkmvtkC7PLYYWk40Y47Tn$",
+                  "continue_if_one_address_valid": false,
+                  "continue_on_failure": false,
+                  "display_name": "Send Email",
+                  "from": "aobootcamp@gmail.com",
+                  "runtime_user": {
+                    "override_target_runtime_user": true,
+                    "runtime_user_id": "definition_runtime_user_01KLGWGAQ985M3AVcKwO23ql8RqQeE83tBl"
+                  },
+                  "skip_execution": false,
+                  "subject": "Results from Lab01 SSO BOOTCAMP",
+                  "target": {
+                    "override_workflow_target": true,
+                    "target_id": "definition_target_01KLGWTB8VLAO6K4N0LMOtHRoHG64pip3tm"
+                  },
+                  "to": "cohooper+apjclab@cisco.com"
+                },
+                "object_type": "definition_activity"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "categories": [
+      "category_1BMfMXSnJMyt5Ihqi7rWJr5N8cf"
+    ]
+  },
+  "triggers": {
+    "triggerschedule_01KLU5KEQNA5J3mHNYFp7kZXN2vTLRyAlJw": {
+      "workflow_id": "definition_workflow_01KLI37CLYCDB2iE8Glvllm7W3kPHr08mIs",
+      "name": "hourly",
+      "title": "",
+      "lowercase_name": "schedule.hourly",
+      "type": "schedule",
+      "base_type": "trigger",
+      "ref_id": "schedule_01KLU4TLEQ8NM09ZDLYTLvqr3jZ3njpnr6u",
+      "version": "1.0.0",
+      "disabled": false,
+      "unique_name": "triggerschedule_01KLU5KEQNA5J3mHNYFp7kZXN2vTLRyAlJw",
+      "object_type": "triggerschedule"
+    }
+  },
+  "schedules": {
+    "schedule_01KLU4TLEQ8NM09ZDLYTLvqr3jZ3njpnr6u": {
+      "unique_name": "schedule_01KLU4TLEQ8NM09ZDLYTLvqr3jZ3njpnr6u",
+      "name": "hourly",
+      "type": "basic.schedule",
+      "base_type": "schedule",
+      "properties": {
+        "calendar": "calendar_recurring_1BMfMWvgiDhSjBQ7hTSyvz3NyVZ",
+        "timezone": "Etc/GMT+0",
+        "starttime": "00:00",
+        "interval_hours": 1,
+        "interval_minutes": 0,
+        "number_of_times": 23,
+        "display_name": "hourly",
+        "description": ""
+      },
+      "version": "1.0.0",
+      "object_type": "schedule"
+    }
+  },
+  "targets": {
+    "definition_target_01KLGU3W3ZPRE7fTmgEtyBM8X8CNFLRGLCy": {
+      "unique_name": "definition_target_01KLGU3W3ZPRE7fTmgEtyBM8X8CNFLRGLCy",
+      "name": "cohooper_http_endpoint_target",
+      "title": "cohooper_http_endpoint_target",
+      "type": "web-service.endpoint",
+      "base_type": "target",
+      "object_type": "definition_target",
+      "properties": {
+        "default_runtime_user_id": "definition_runtime_user_01KLGREJQBCQ84q6UHuURLlOB8UBjJtoUxF",
+        "disable_certificate_validation": true,
+        "display_name": "cohooper_http_endpoint_target",
+        "host": "jsonplaceholder.typicode.com",
+        "ignore_proxy": false,
+        "no_runtime_user": false,
+        "port": 443,
+        "protocol": "https"
+      }
+    },
+    "definition_target_01KLGWTB8VLAO6K4N0LMOtHRoHG64pip3tm": {
+      "unique_name": "definition_target_01KLGWTB8VLAO6K4N0LMOtHRoHG64pip3tm",
+      "name": "cohooper_smtp_endpoint",
+      "title": "cohooper_smtp_endpoint",
+      "type": "email.smtp_endpoint",
+      "base_type": "target",
+      "object_type": "definition_target",
+      "properties": {
+        "default_runtime_user_id": "definition_runtime_user_01KLGWGAQ985M3AVcKwO23ql8RqQeE83tBl",
+        "display_name": "cohooper_smtp_endpoint",
+        "no_runtime_user": false,
+        "port": 465,
+        "protocol": "SMTP",
+        "server": "smtp.gmail.com"
+      }
+    },
+    "definition_target_01KLTIKJGRW4V6O6TlH0hyOv4rAsrh6Hat5": {
+      "unique_name": "definition_target_01KLTIKJGRW4V6O6TlH0hyOv4rAsrh6Hat5",
+      "name": "CSIT-ATO-FS",
+      "title": "CSIT-ATO-FS",
+      "type": "terminal.unix_linux_endpoint",
+      "base_type": "target",
+      "object_type": "definition_target",
+      "properties": {
+        "bash_shell": "/bin/bash",
+        "default_runtime_user_id": "definition_runtime_user_01KLHYACCNDA22Lsfsl4VqkekJnvFK3lbAt",
+        "display_name": "CSIT-ATO-FS",
+        "host": "18.185.138.216",
+        "port": 22
+      }
+    }
+  },
+  "runtime_users": {
+    "definition_runtime_user_01KLGREJQBCQ84q6UHuURLlOB8UBjJtoUxF": {
+      "unique_name": "definition_runtime_user_01KLGREJQBCQ84q6UHuURLlOB8UBjJtoUxF",
+      "name": "cohooper_http_basic_auth",
+      "title": "cohooper_http_basic_auth",
+      "type": "runtime_user.web-service_basic_credentials",
+      "base_type": "runtime_user",
+      "object_type": "definition_runtime_user",
+      "properties": {
+        "auth_option": "*****",
+        "basic_password": "*****",
+        "basic_username": "*****",
+        "display_name": "cohooper_http_basic_auth"
+      }
+    },
+    "definition_runtime_user_01KLGWGAQ985M3AVcKwO23ql8RqQeE83tBl": {
+      "unique_name": "definition_runtime_user_01KLGWGAQ985M3AVcKwO23ql8RqQeE83tBl",
+      "name": "cohooper_smtp_endpoint",
+      "title": "cohooper_smtp_endpoint",
+      "type": "runtime_user.email_credentials",
+      "base_type": "runtime_user",
+      "object_type": "definition_runtime_user",
+      "properties": {
+        "display_name": "cohooper_smtp_endpoint",
+        "password": "*****",
+        "sender": "*****"
+      }
+    },
+    "definition_runtime_user_01KLHYACCNDA22Lsfsl4VqkekJnvFK3lbAt": {
+      "unique_name": "definition_runtime_user_01KLHYACCNDA22Lsfsl4VqkekJnvFK3lbAt",
+      "name": "CSIT-AUTO-FS",
+      "title": "CSIT-AUTO-FS",
+      "type": "runtime_user.terminal_password_credentials",
+      "base_type": "runtime_user",
+      "object_type": "definition_runtime_user",
+      "properties": {
+        "display_name": "CSIT-AUTO-FS",
+        "password": "*****",
+        "user": "*****"
+      }
+    }
+  },
+  "atomic_workflows": [
+    "definition_workflow_01KLH51WNYO402Mlon7WYhPRh1KlWnQJec7"
+  ]
+}
